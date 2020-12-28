@@ -1,21 +1,44 @@
 {
   "name": "reed",
+  "author": "61soldiers",
   "version": "0.1.0",
+  "license": "MIT",
+  "description": "Chill epub reader",
   "private": true,
+  "homepage": "./",
+  "main": "./electron/main.js",
   "dependencies": {
+    "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.5.0",
+    "concurrently": "^5.3.0",
+    "custom-electron-titlebar": "^3.2.5",
+    "electron-is-dev": "^1.2.0",
+    "epubjs": "^0.3.73",
+    "forerunnerdb": "^2.0.22",
     "react": "^17.0.1",
+    "react-contextmenu": "^2.14.0",
     "react-dom": "^17.0.1",
+    "react-dropdown": "^1.9.0",
+    "react-reader": "^0.20.0",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
-    "web-vitals": "^0.2.4"
+    "uuid4": "^2.0.2",
+    "wait-on": "^5.2.0"
+  },
+  "devDependencies": {
+    "electron": "^11.1.0",
+    "electron-builder": "^22.9.1"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dist": "electron-builder",
+    "dev": "concurrently \"npm run start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +57,33 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "build": {
+    "appId": "com.evolvedmesh.reed",
+    "productName": "Reed",
+    "extends" : null,
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "*.js",
+      "*.css",
+      "build",
+      "public",
+      "node_modules",
+      "electron"
+    ],
+    "win" : {
+      "target": "nsis",
+      "icon": "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico"
+    },
+    "nsis" : {
+      "oneClick" : false,
+      "allowToChangeInstallationDirectory" : true,
+      "installerIcon" : "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico",
+      "uninstallerIcon" : "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico",
+      "createDesktopShortcut" : true,
+      "shortcutName" : "Reed ${version}"
+    }
   }
 }
