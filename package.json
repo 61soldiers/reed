@@ -17,7 +17,11 @@
     "custom-electron-titlebar": "^3.2.5",
     "electron-is-dev": "^1.2.0",
     "epubjs": "^0.3.73",
+    "file-loader": "^6.2.0",
     "forerunnerdb": "^2.0.22",
+    "node-ebook-converter": "^1.0.9",
+    "notistack": "^1.0.3",
+    "pdf-extraction": "^1.0.2",
     "react": "^17.0.1",
     "react-contextmenu": "^2.14.0",
     "react-dom": "^17.0.1",
@@ -25,8 +29,8 @@
     "react-reader": "^0.20.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
-    "uuid4": "^2.0.2",
-    "wait-on": "^5.2.0"
+    "uuid": "^8.3.2",
+    "wait-on": "^5.2.1"
   },
   "devDependencies": {
     "electron": "^11.1.0",
@@ -61,29 +65,34 @@
   "build": {
     "appId": "com.evolvedmesh.reed",
     "productName": "Reed",
-    "extends" : null,
+    "extends": null,
     "directories": {
       "output": "out"
     },
     "files": [
       "*.js",
       "*.css",
+      "*.fdb",
       "build",
       "public",
+      "data",
       "node_modules",
       "electron"
     ],
-    "win" : {
+    "extraFiles": [
+      "data/*.fdb"
+    ],
+    "win": {
       "target": "nsis",
       "icon": "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico"
     },
-    "nsis" : {
-      "oneClick" : false,
-      "allowToChangeInstallationDirectory" : true,
-      "installerIcon" : "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico",
-      "uninstallerIcon" : "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico",
-      "createDesktopShortcut" : true,
-      "shortcutName" : "Reed ${version}"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico",
+      "uninstallerIcon": "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico",
+      "createDesktopShortcut": true,
+      "shortcutName": "Reed ${version}"
     }
   }
 }

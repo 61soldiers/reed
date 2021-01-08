@@ -11,6 +11,10 @@ const bookCollections = db.collection('bookCollections'); bookCollections.load(f
 const books = db.collection('books'); books.load(function(err){if (err){console.log(err)}})
 const userData = db.collection('userData'); userData.load(function(err){if (err){console.log(err)}})
 
+global.bookCollections = bookCollections
+global.books = books
+global.userData = userData
+
 //// Collection CRUD
 // Get collections list
 ipcMain.on('getColls', async function(event, _data) {
@@ -68,7 +72,7 @@ ipcMain.on('delColl', async function(event, data) {
 
 
 
-//// Book CRUD
+//// EPUB Book CRUD
 // Get all books
 ipcMain.on('getAllBooks', async function(event, data) {
   try {
@@ -122,6 +126,15 @@ ipcMain.on('delBook', async function(event, data) {
   }
 })
 
+// Update book
+ipcMain.on('updateBook', async function(event, data) {
+  try {
+    await books.remove({identifier: data.identifier})
+    await books.insert(data)
+    await event.reply('updateBook', {status:'success'})
+  } catch {await event.reply('updateBook', {status: 'failed'})}
+})
+
 // Return book metadata
 ipcMain.on('getBookMD', async function(event, data) {
   try {
@@ -149,7 +162,8 @@ ipcMain.on('getCurrentReadingBook', async function(event, _data) {
   try {
     let doc = await userData.findOne({name: 'crbook'})
     let book = await books.findOne({identifier: doc.bookId})
-    await event.reply('getCurrentReadingBook', {status: 'success', book:book})
+    if (book) {await event.reply('getCurrentReadingBook', {status: 'success', book:book})}
+    else {await event.reply('getCurrentReadingBook', {status: 'failed'})}
   } catch {
     await event.reply('getCurrentReadingBook', {status: 'failed'})
   }

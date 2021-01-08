@@ -2,19 +2,16 @@ import './App.css';
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles';
 import { Route, Switch } from 'react-router-dom'
+import { SnackbarProvider } from 'notistack';
 import bg from './Resources/Images/rg.png'
 
 // Components
 import Home from './components/Library/Home'
-import Reader from './components/reader/Reader'
+import EpubReader from './components/Reader/EpubReader'
 import NavBar from './components/Navbar'
-const customTitlebar = window.require('custom-electron-titlebar');
- 
-new customTitlebar.Titlebar({
-    backgroundColor: customTitlebar.Color.fromHex('#000000'),
-    drag: true,
-})
-const useStyles = makeStyles(() => ({
+import Convert from './components/Convert/Convert'
+// >
+const useStyles = makeStyles((theme) => ({
   bg : {
     backgroundImage : `url(${bg})`,
     backgroundSize: 'cover',
@@ -29,6 +26,9 @@ const useStyles = makeStyles(() => ({
   },
   '@global' : {
     WebkitFontSmoothing: 'antialiased'
+  },
+  error : {
+    backgroundColor: '#ff6459'
   }
 }))
 
@@ -36,16 +36,15 @@ function App() {
   const classes = useStyles();
 
   return (
-    <React.Fragment>
+    <SnackbarProvider maxSnack={7} classes={{variantError: classes.error}}>
       <div className={classes.bg}></div>
       <NavBar/>
-      <React.Fragment>
-        <Switch>
-          <Route exact path='/' component={Home} ></Route>
-          <Route exact path='/reader' component={Reader} ></Route>
-        </Switch>
-      </React.Fragment>
-    </React.Fragment>
+      <Switch>
+        <Route exact path='/' component={Home} ></Route>
+        <Route exact path='/epubreader' component={EpubReader} ></Route>
+        <Route exact path='/convert' component={Convert} ></Route>
+      </Switch>
+    </SnackbarProvider>
   );
 }
 

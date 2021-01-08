@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles';
-import { EpubView } from "react-reader";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, Select, Typography } from '@material-ui/core';
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { MenuItem } from 'react-contextmenu';
-// Componenets / custom exports
+import { makeStyles } from '@material-ui/core/styles'
+import { EpubView } from "react-reader"
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, Select, Typography } from '@material-ui/core'
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import { MenuItem } from 'react-contextmenu'
+import { useSnackbar } from 'notistack'
+import { v4 as uuidv4 } from 'uuid'
+// Componenets
 
 const { ipcRenderer } = window.require("electron")
 const fs = window.require('fs')
@@ -14,7 +16,7 @@ const fs = window.require('fs')
 const useStyles = makeStyles((theme) => ({
   root : {
     marginTop: 80,
-    height: '80vh',
+    height: '75vh',
     width: '80%',
     margin: '0 auto',
   },
@@ -42,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Home() {
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   // States
   const [rendition, setRendition] = useState(null)
   const [bookContent, setBookContent] = useState(null)
@@ -75,21 +78,33 @@ export default function Home() {
     }
   }, [rendition])
   // Get crbook
-  
   useEffect(function() {
     async function getCurrentReadingBook() {
       await ipcRenderer.send('getCurrentReadingBook')
       await ipcRenderer.once('getCurrentReadingBook', async function(_event, data) {
+        let errVariant = 'error'
+        let action = (key) => <Button onClick={()=>{closeSnackbar(key)}}>OK</Button>
         if(data.status==='success') {
           setBookToLoad(data.book)
-          try {
+          fs.access(data.book.path, fs.F_OK, async (err) => {
+            if (err) {
+              let key = uuidv4()
+              enqueueSnackbar("Error reading file | Check book location", {
+                variant: errVariant, 
+                persist: true,
+                key: key,
+                action: action(key)
+              })
+              return
+            }
             await fs.readFile(data.book.path, {encoding: 'base64'}, function(e, d){setBookContent(d);setIsLoaded(true)})
-          } catch {/* Empty noti */}
-        } else {/* Error noti */}
+          })
+        } else {enqueueSnackbar("You are not currently reading any book")}
       })
     }
     getCurrentReadingBook()
     
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(function() {
     if (rendition) {
@@ -120,7 +135,6 @@ export default function Home() {
         />
         <Button className={classes.pageTraversalButtons} variant="contained" color="primary" onClick={() => {prevPage()}}><ArrowBackIosIcon/></Button>
         <Button className={classes.pageTraversalButtons} variant="contained" color="primary" onClick={() => {nextPage()}}><ArrowForwardIosIcon/></Button>
-        <Typography>{}</Typography>
       </div> : null}
     </React.Fragment>
   )

@@ -17,9 +17,10 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 350,
     marginTop: 55,
     padding: 20,
-    border: '3px solid',
-    width: '78%',
-    height: '80%',
+    border: '1px solid',
+    borderRight: 'none',
+    width: '100%',
+    height: '100%',
     overflowY: 'auto',
     overflowX: 'auto',
   }

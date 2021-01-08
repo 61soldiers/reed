@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { Button, Dialog, DialogActions, DialogTitle, Divider, Typography } from '@material-ui/core'
+import { Button, Dialog, DialogActions, DialogTitle, Divider, InputBase, Typography } from '@material-ui/core'
+import ErrorIcon from '@material-ui/icons/Error'
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu"
 import { Book } from 'epubjs'
 import { useHistory } from 'react-router-dom'
 import Dropdown from 'react-dropdown'
+import { useSnackbar } from 'notistack'
+import { v4 as uuidv4 } from 'uuid'
 import './rd.css'
 
 const fs = window.require('fs').promises
@@ -15,9 +18,8 @@ const { ipcRenderer } = window.require("electron")
 const useStyles = makeStyles((theme) => ({
   colltitle : {
     position: 'fixed',
+    marginLeft: 9,
     color: theme.palette.primary.main,
-    backgroundColor: 'black',
-    padding: 20,
     borderRadius: 7,
     zIndex: 3,
   },
@@ -50,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'fixed',
     background: 'black',
     color: theme.palette.primary.main,
-    right: 55,
+    right: 30,
     padding: 10,
     transition: 'all 0.2s ease',
     textOverflow: 'ellipsis',
@@ -108,16 +110,61 @@ const useStyles = makeStyles((theme) => ({
     width: '70%',
     margin: '0 auto',
     borderRadius: 5,  
-  }
+  },
+  bookErrorIcon : {
+    transition: 'all 0.2s ease',
+    '&:hover' : {
+      transition: 'all 0.1s ease',
+      transform: 'scale(1.2, 1.2)',
+      color: theme.palette.error.main,
+      '& $errMsg' : {
+        transition: 'all 0.1s ease',
+        visibility: 'visible',
+      }
+    },
+  },
+  errContainer : {
+    display: 'flex',
+  },
+  resolvePathButton : {
+    backgroundColor: '#878787',
+    color: theme.palette.primary.main,
+    transition: 'all 0.2s ease',
+    padding: 5,
+    fontSize: 13,
+    marginLeft: 10,
+    width: 76,
+    borderRadius: 4,
+    '&:hover': {
+      background: '#6e6e6e',
+      color: 'black',
+      transition: 'all 0.1s ease'
+    },
+  },
+  bookSearchBarOuter : {
+    position: 'fixed',
+    right: 140,
+  },
+  bookSearchBar : {
+    borderRadius: 5,
+    background: 'black',
+    color: theme.palette.secondary.main,
+    padding: 6,
+    paddingLeft: 10,
+    fontWeight: 'bold',
+  },
 }))
 
 export default function Books(props) {
+  const { enqueueSnackbar } = useSnackbar()
   const history = useHistory()
   // Css
   const classes = useStyles()
   // States
   const [books, setBooks] = useState([])
   const { toLoadCollection, colls } = props
+  // m> 
+  const [schBarVal, setSchBarVal] = useState("")
   // Dem funcs
   async function getBooksOfSaidColl() {
     if (!toLoadCollection) {
@@ -131,6 +178,8 @@ export default function Books(props) {
         setBooks(data)
       })
     }
+    // >
+    setSchBarVal("")
   }
   useEffect(function() {
     getBooksOfSaidColl()
@@ -151,7 +200,7 @@ export default function Books(props) {
       await ipcRenderer.send('addBooks', booksToAdd)
       await ipcRenderer.once('addBooks', async function(_event, data) {if(data.status==='success'){await getBooksOfSaidColl()}})
     } catch {
-      // Error noti
+      enqueueSnackbar("Something went wrong!", {variant: 'error'})
     }
   }
   // >
@@ -159,38 +208,119 @@ export default function Books(props) {
     await ipcRenderer.send('setCurrentReadingBook', id)
     await ipcRenderer.once('setCurrentReadingBook', async function(_event, data) {
       if(data.status==='success') {
-        history.push('/reader')
-      } else {/* Error noti */}
+        try {
+          history.push('/epubreader')
+        } catch {enqueueSnackbar("Not able to read this book!", {variant: 'error'})}
+      } else {enqueueSnackbar("Something went wrong!", {variant: 'error'})}
     })
   }
+  // Search books bookSearchBarI
+  function searchBooksInList(v) {
+    let ul = document.getElementById("mainBookList")
+    let lis = ul.getElementsByTagName('li')
+    // Loop through li's of ul
+    for (let i = 0; i < lis.length; i++) {
+      let p = lis[i].getElementsByTagName("p")[0]
+      let txtValue = p.textContent || p.innerText
+      if (txtValue.toUpperCase().indexOf(v.toUpperCase()) > -1) {
+        lis[i].style.display = ""
+      } else {
+        lis[i].style.display = "none"
+      }
+    }
+  }
+  useEffect(function() {
+    if (schBarVal==="") {
+      let ul = document.getElementById("mainBookList")
+      let lis = ul.getElementsByTagName('li')
+      for (let i = 0; i < lis.length; i++) {
+        lis[i].style.display = ""
+      }
+    }
+  }, [schBarVal])
+  
   // Render
   return (
     <React.Fragment>
       <BookContextMenu getBooksOfSaidColl={getBooksOfSaidColl} colls={colls} />
-
       <div className={classes.colltitle}>
         <Typography variant="h3" > {toLoadCollection ? toLoadCollection : "All Books"} </Typography>
+      </div>
+      <div className={classes.bookSearchBarOuter}>
+        <InputBase
+          placeholder={`Search ${!toLoadCollection ? "books" : toLoadCollection}`}
+          className={classes.bookSearchBar}
+          value={schBarVal}
+          onChange={(e)=>{setSchBarVal(e.target.value);searchBooksInList(e.target.value)}}
+        />
       </div>
       <Typography onClick={()=>{fileSelectorAddBooks()}} id="allbooks" color="primary" className={classes.addBookButton}>
         {"Add Books"}
       </Typography>
-      <div className={classes.bookGrid}>
-        {books.map(function(data, x) {
-          return <ContextMenuTrigger key={x} id="book-cm"><BookComponent id={data.identifier} data={data} setCrBookAndOpen={setCrBookAndOpen} /></ContextMenuTrigger>
-        })}
-      </div>
+      <ul style={{listStyle: 'none', paddingLeft: 0,}} id="mainBookList">
+        <div className={classes.bookGrid}>
+          {books.map(function(data, x) {
+            return <li key={x}><ContextMenuTrigger id="book-cm">
+                <BookComponent id={data.identifier} data={data} setCrBookAndOpen={setCrBookAndOpen} getBooksOfSaidColl={getBooksOfSaidColl} />
+              </ContextMenuTrigger>
+            </li>
+          })}
+        </div>
+      </ul>
     </React.Fragment>
   )
 }
 
 // Book card
-function BookComponent({data, setCrBookAndOpen}) {
+function BookComponent({data, setCrBookAndOpen, getBooksOfSaidColl}) {
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const classes = useStyles()
-  const { title, creator, identifier } = data
+  const { title, creator, identifier, path } = data
+  const [isError, setIsError] = useState(false)
+  // Check if file exists in path
+  async function isBookExistIfSoExec() {
+    fs.access(path, fs.F_OK, (err) => {
+      if (err) {
+        setIsError(true)
+        let key = uuidv4()
+        let action = (key) => <Button onClick={()=>{closeSnackbar(key)}}>OK</Button>
+        enqueueSnackbar("Error reading file | Check book location", {
+          variant: 'error', 
+          persist: true,
+          key: key,
+          action: action(key)
+        })
+        return
+      }
+      setCrBookAndOpen(identifier)
+    })
+  }
+  useEffect(function() {
+    fs.access(path, fs.F_OK, (err) => {if (err) {setIsError(true);return}})
+  }, [path])
+  // Resolve filepath
+  async function resolveBookPath(e) {
+    try {
+      e.stopPropagation()
+      let { filePaths } = await dialog.showOpenDialog({properties:['openFile'],filters:[{ name: 'eBooks', extensions: ['epub'] }]})
+      if (!filePaths[0]) {return}
+      let bookObject = {...data, path: filePaths[0]}
+      await ipcRenderer.send('updateBook', bookObject)
+      await ipcRenderer.once('updateBook', async function (_e, d) {
+        if(d.status==='failed'){enqueueSnackbar("Something went wrong!", {variant: 'error'})}
+        else {setIsError(false);await getBooksOfSaidColl()}
+      })
+    } catch {enqueueSnackbar("Something went wrong!", {variant: 'error'})}
+  }
   // Render
   return (
-    <div id={identifier} onClick={()=>{setCrBookAndOpen(identifier)}}>
+    <div id={identifier} onClick={()=>{isBookExistIfSoExec()}}>
       <div className={classes.bookCard} id={identifier}>
+        {isError ? <div className={classes.errContainer}>
+          <ErrorIcon className={classes.bookErrorIcon} />
+          <Typography onClick={(e)=>{resolveBookPath(e)}} className={classes.resolvePathButton}>Resolve Path</Typography>
+          </div> : null
+        }
         <Typography className={classes.title} id={identifier}>
           {title}
         </Typography>
