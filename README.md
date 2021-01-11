@@ -40,6 +40,13 @@ Will output an [**out**] folder in the project directory containing the unpacked
 # Change log
 All features, changes and fixes will be documented here
 <br/>
+
+## [1.0.1] - 2021-01-11
+
+### Fixes
+- Installer is now one-click and will be installed local to the user. In the previous release users were able to choose between a local installation or a system wide installation. System wide installation causes the app to not save changes
+- If data files were erased, loading a book crashes app
+
 ## [1.0.0] - 2021-01-11
 
 ### New
@@ -49,6 +56,6 @@ All features, changes and fixes will be documented here
 - Ability to change font size
 - Ability to change font color
 
-### Fixed
+### Fixes
 - Opening a book the first time doesn't load said book
 - 'Currently reading' had unhandled error if book doesn't exist
