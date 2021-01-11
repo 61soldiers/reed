@@ -12,14 +12,15 @@ Chill epub reader with library management
 ```
 git clone https://github.com/61soldiers/reed.git
 ```
+
+### Installing packages
 ```
 npm install
 ```
+
 ### 3rd Party dependencies
 To use the pdf to epub conversion feature, you will need [calibre](https://calibre-ebook.com/download). 
-Download and install, no other actions needed. 
-If for some reason the app cannot detect calibre's installation directory, make sure the environment variable is set properly! 
-[Should be done automatically when installing calibre].
+Download and install, no other actions needed.
 
 ## Running in developer mode
 ```
@@ -28,12 +29,26 @@ npm run dev
 
 ## Building and packaging for windows
 ```
-npm run build && npm run dist
+npm run dist
 ```
-Will output an [**out**] folder in the project directory containing the build files
-<br/><br/>
+Will output an [**out**] folder in the project directory containing the unpacked files and setup
 
-### Have a look
 <br/>
 <br/>
-<img src="https://cdn.discordapp.com/attachments/673801616754999297/792943112376680468/unknown.png">
+<img src="https://cdn.discordapp.com/attachments/673957926225838121/798001938321899560/unknown.png">
+
+# Change log
+All features, changes and fixes will be documented here
+<br/>
+## [1.2.0] - 2021-01-11
+
+### New
+- Ability to fix file path to book. Books will also show an error if path to said book file is incorrect
+- Ability to search for books
+- Ability to convert pdf to epub
+- Ability to change font size
+- Ability to change font color
+
+### Fixed
+- Opening a book the first time doesn't load said book
+- 'Currently reading' had unhandled error if book doesn't exist
