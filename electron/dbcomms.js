@@ -181,6 +181,29 @@ ipcMain.on('setCurrentReadingBook', async function(event, data) {
     await event.reply('getCurrentReadingBook', {status: 'failed'})
   }
 })
+// Set settings of reader
+ipcMain.on('setReaderSettings', async function(event, data) {
+  try {
+    let doc = await userData.findOne({name: 'readerSettings'})
+    if (!doc) {
+      await userData.insert({name: 'readerSettings', readerStyle: data.readerStyle})
+    } else {await userData.update({name: 'readerSettings'}, {$overwrite: {readerStyle: data.readerStyle}})}
+    await event.reply('setReaderSettings', {status: 'success'})
+  } catch {await event.reply('setReaderSettings', {status: 'failed'})}
+})
+
+// Set settings of reader
+ipcMain.on('getReaderSettings', async function(event, data) {
+  try {
+    let doc = await userData.findOne({name: 'readerSettings'})
+    await event.reply('getReaderSettings', {status: 'success', readerSettings: doc.readerStyle})
+  } catch {await event.reply('getReaderSettings', {status: 'failed'})}
+})
+
+
+
+
+
 
 //// Location CRUD
 // Get location

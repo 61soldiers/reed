@@ -1,25 +1,53 @@
 const { ipcMain } = require('electron')
 const path = require('path')
-const ebookConverter =  require('node-ebook-converter')
+// const ebookConverter =  require('node-ebook-converter')
+const commandExists = require('command-exists')
+const util = require('util')
+const exec = util.promisify(require('child_process').exec)
 // const { Poppler } =  require('node-poppler')
 // const Epub = require("epub-gen")
 // const fs = require('fs')
 // const pdfExtraction = require("pdf-extraction")
 
 
-// convert pdf to epub [requires calibre | https://calibre-ebook.com/download]
+// Check if calibre cli tool exists
+ipcMain.on('isCalibreConvertExist', async function(event, _data) {
+  try {
+    commandExists('ebook-convert', async function(_err, isExist) {
+      if(isExist) {await event.reply('isCalibreConvertExist', {status: 'success', isExist: true})}
+      else {await event.reply('isCalibreConvertExist', {status: 'success', isExist: false})}
+    }) 
+  } catch {await event.reply('isCalibreConvertExist', {status: 'failed'})}
+})
+
+
+// Convert pdf to epub [requires calibre | https://calibre-ebook.com/download]
 ipcMain.on('convertPdfToEpub', async function(event, data) {
   try {
     let pdfPath = path.parse(data.path)
-    // Convert with calibre
-    ebookConverter.convert({
-      input: data.path,
-      output: `${pdfPath.dir}/${pdfPath.name}.epub`,
-      silent: true,
-    }).then(async (res) => await event.reply('convertPdfToEpub', {status: 'success'}))
-      .catch(async (err) => await event.reply('convertPdfToEpub', {status: 'failed'}))
+    // // Convert with calibre
+    // ebookConverter.convert({
+    //   input: data.path,
+    //   output: `${pdfPath.dir}/${pdfPath.name}.epub`,
+    //   silent: true,
+    // }).then(async (res) => await event.reply('convertPdfToEpub', {status: 'success'}))
+    //   .catch(async (err) => await event.reply('convertPdfToEpub', {status: 'failed', error: err}))
+
+
+
+    // TEMP
+    const promise = exec(`ebook-convert "${data.path}" "${pdfPath.dir}/${pdfPath.name}.epub"`)
+    const child = promise.child
+    child.stderr.on('data', async function (data) {
+      await event.reply('convertPdfToEpub', {status: 'failed', error: data})
+    })
+    await promise
+
+    await event.reply('convertPdfToEpub', {status: 'success'})
+
   } catch {await event.reply('convertPdfToEpub', {status: 'failed'})}
 })
+
 
 
 //// Don't use

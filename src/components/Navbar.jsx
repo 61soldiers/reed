@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
   settingsButton : {
     color: theme.palette.primary.main,
+    fontWeight: 'bold',
     marginLeft: 15,
     padding: 8,
     transition: 'all 0.2s ease',
@@ -58,13 +59,13 @@ export default function ButtonAppBar() {
             R E E D
           </Typography>
           <Typography onClick={()=>{history.push('/convert')}} id="allbooks" color="primary" className={classes.settingsButton}>
-            {"Pdf to ePub"}
-          </Typography>
-          <Typography onClick={()=>{history.push('/')}} id="allbooks" color="primary" className={classes.settingsButton}>
-            {"Library"}
+            PDF TO EPUB
           </Typography>
           <Typography onClick={()=>{history.push('/epubreader')}} id="allbooks" color="primary" className={classes.settingsButton}>
             {"Continue reading"}
+          </Typography>
+          <Typography onClick={()=>{history.push('/')}} id="allbooks" color="primary" className={classes.settingsButton}>
+            {"Library"}
           </Typography>
         </Toolbar>
       </AppBar>
