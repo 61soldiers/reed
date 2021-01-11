@@ -1,7 +1,7 @@
 {
   "name": "reed",
   "author": "61soldiers",
-  "version": "1.2.0",
+  "version": "1.0.0",
   "license": "MIT",
   "description": "Chill epub reader",
   "private": true,

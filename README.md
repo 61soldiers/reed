@@ -40,7 +40,7 @@ Will output an [**out**] folder in the project directory containing the unpacked
 # Change log
 All features, changes and fixes will be documented here
 <br/>
-## [1.2.0] - 2021-01-11
+## [1.0.0] - 2021-01-11
 
 ### New
 - Ability to fix file path to book. Books will also show an error if path to said book file is incorrect
