@@ -1,7 +1,7 @@
 {
   "name": "reed",
   "author": "61soldiers",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Chill epub reader",
   "private": true,
@@ -92,11 +92,11 @@
       "icon": "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico"
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
       "installerIcon": "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico",
       "uninstallerIcon": "./src/Resources/EvolvedMesh LOGO [Transparent] dark mode.ico",
       "createDesktopShortcut": true,
+      "perMachine": false,
       "shortcutName": "Reed ${version}"
     }
   }

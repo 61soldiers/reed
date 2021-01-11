@@ -232,12 +232,17 @@ function SettingsDialog(props) {
     await ipcRenderer.send('getReaderSettings')
     ipcRenderer.once('getReaderSettings', function(_e, d) {
       if (d.status==="success") {
-        let m = d.readerSettings['p, a, h1, h2, h3, h4, h5, i, span, meta, body, iframe']
-        let miniSetts = {
-          fontSize: parseInt(m['font-size'].replace('px', '')),
-          fontColor: m['color']
+        if (d.readerSettings) {
+          let m = d.readerSettings['p, a, h1, h2, h3, h4, h5, i, span, meta, body, iframe']
+          let miniSetts = {
+            fontSize: parseInt(m['font-size'].replace('px', '')),
+            fontColor: m['color']
+          }
+          setMinifiedSettings(miniSetts)
+        } else {
+          let miniSetts = {fontSize: 15,fontColor: '#ffffff'}
+          setMinifiedSettings(miniSetts)
         }
-        setMinifiedSettings(miniSetts)
       }
     })
   }
