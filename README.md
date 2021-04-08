@@ -9,6 +9,10 @@ Chill epub reader with library management
 
 
 ## Installation
+Windows installer -> https://github.com/61soldiers/reed/releases/download/v1.0.1/Reed.Setup.1.0.1.exe
+<br/>
+or
+
 ```
 git clone https://github.com/61soldiers/reed.git
 ```
